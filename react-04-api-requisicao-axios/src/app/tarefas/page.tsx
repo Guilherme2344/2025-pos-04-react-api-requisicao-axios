@@ -3,7 +3,8 @@
 import type React from "react";
 
 import { useEffect, useState } from "react";
-import dados, { TarefaInterface } from "@/data";
+import axios from "axios";
+import { TarefaInterface } from "@/data";
 import Cabecalho from "@/componentes/Cabecalho";
 import ModalTarefa from "@/componentes/ModalTarefa";
 
@@ -57,7 +58,29 @@ const Tarefas: React.FC<TareafasProps> = ({ dados }) => {
 };
 
 const Home = () => {
-	const [tarefas, setTarefas] = useState<TarefaInterface[]>(dados);
+	const [tarefas, setTarefas] = useState<TarefaInterface[]>([]);
+
+	useEffect(() => {
+		const carregarTarefas = async () => {
+		try {
+			const response = await axios.get("https://dummyjson.com/todos");
+			const todos = response.data.todos;
+
+			// Mapeia para o formato da interface
+			const tarefasFormatadas: TarefaInterface[] = todos.map((todo: any) => ({
+			id: todo.id,
+			title: todo.todo,
+			completed: todo.completed,
+			}));
+
+			setTarefas(tarefasFormatadas);
+		} catch (error) {
+			console.error("Erro ao carregar tarefas:", error);
+		}
+		};
+
+		carregarTarefas();
+	}, []);
 
 	const adicionarTarefa = (titulo: string) => {
 		const novaTarefa: TarefaInterface = {
